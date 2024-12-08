@@ -1,6 +1,8 @@
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.sql.*;
+
 
 public class ClientHandler implements Runnable {
     public static ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
@@ -16,11 +18,23 @@ public class ClientHandler implements Runnable {
             this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.thisClientUsername = in.readLine();
             clientHandlers.add(this);
+
+            // Send previous messages
+            ResultSet resultSet = DatabaseHandler.getPreviousMessages();
+            while (resultSet != null && resultSet.next()) {
+                String username = resultSet.getString("username");
+                String msg = resultSet.getString("message");
+                out.write(username + ": " + msg);
+                out.newLine();
+                out.flush();
+            }
+
             broadcastMessage("has joined the chat!");
-        } catch (IOException e) {
+        } catch (IOException | SQLException e) {
             closeEverything(socket, in, out);
         }
     }
+
 
     @Override
     public void run() {
@@ -50,14 +64,12 @@ public class ClientHandler implements Runnable {
         for (ClientHandler clientHandler : clientHandlers) {
             try {
                 if (!clientHandler.thisClientUsername.equals(thisClientUsername)) {
-                    if(message.equals("has left the chat.")){
+                    if (message.equals("has left the chat.") || message.equals("has joined the chat!")) {
                         clientHandler.out.write(thisClientUsername + " " + message);
-                    }
-                    else if(message.equals("has joined the chat!")){
-                        clientHandler.out.write(thisClientUsername + " " + message);
-                    }
-                    else{
+                        DatabaseHandler.saveMessage(thisClientUsername, thisClientUsername + " " + message);
+                    } else {
                         clientHandler.out.write(thisClientUsername + ": " + message);
+                        DatabaseHandler.saveMessage(thisClientUsername, message);
                     }
                     clientHandler.out.newLine();
                     clientHandler.out.flush();
@@ -69,9 +81,9 @@ public class ClientHandler implements Runnable {
     }
 
 
+
     public void removeClientHandler() {
         clientHandlers.remove(this);
-        broadcastMessage("Server: " + thisClientUsername + " has left the chat :(");
     }
 
     public void closeEverything(Socket socket, BufferedReader in, BufferedWriter out) {

@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class Server {
     private ServerSocket serverSocket;
@@ -10,11 +11,14 @@ public class Server {
     }
 
     public void startServer() {
+        // Start a thread for handling server commands
+        new Thread(this::listenForCommands).start();
+
         try {
             while (!serverSocket.isClosed()) {
                 Socket socket = serverSocket.accept();
                 System.out.println("A client has connected to the server.");
-                ClientHandler clientHandler = new ClientHandler(socket) ;
+                ClientHandler clientHandler = new ClientHandler(socket);
 
                 Thread thread = new Thread(clientHandler);
                 thread.start();
@@ -24,6 +28,18 @@ public class Server {
         }
     }
 
+    public void listenForCommands() {
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            String command = scanner.nextLine();
+            if (command.equalsIgnoreCase("/flush")) {
+                System.out.println("Flushing all messages from the database...");
+                DatabaseHandler.flushMessages();
+                System.out.println("All messages have been deleted.");
+            }
+        }
+    }
 
     public void closeServer() {
         try {

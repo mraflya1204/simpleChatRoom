@@ -81,7 +81,6 @@ public class Client {
         try (Scanner myScanner = new Scanner(System.in)) {
             System.out.print("Enter username: ");
             String myUserName = myScanner.nextLine();
-            System.out.println();
             Socket mySocket = new Socket("localhost", 727);
             Client myClient = new Client(mySocket, myUserName);
             myClient.readMessage();
