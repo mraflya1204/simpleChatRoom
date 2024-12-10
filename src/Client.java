@@ -77,6 +77,22 @@ public class Client {
         }
     }
 
+    public BufferedWriter getOut() {
+        return out;
+    }
+
+    public BufferedReader getIn() {
+        return in;
+    }
+
+    public Socket getSocket() {
+        return socket;
+    }
+
+    public String getThisClientUsername() {
+        return thisClientUsername;
+    }
+
     public static void main(String[] args) {
         try (Scanner myScanner = new Scanner(System.in)) {
             System.out.print("Enter username: ");
