@@ -18,6 +18,7 @@ public class ClientUI {
     public ClientUI(Client client) {
         this.client = client;
 
+        //Send username to the server
         try {
             client.getOut().write(client.getThisClientUsername());
             client.getOut().newLine();
@@ -27,29 +28,39 @@ public class ClientUI {
             e.printStackTrace();
         }
 
+        //New window
         frame = new JFrame("Chat Room");
         frame.setSize(600, 400);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
+        //Chat area to show the messages from yourself and other users
         chatArea = new JTextArea();
         chatArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(chatArea);
         frame.add(scrollPane, BorderLayout.CENTER);
 
+        //Main input panel
         JPanel inputPanel = new JPanel();
         inputPanel.setLayout(new BorderLayout());
 
+        //Buttons
+        //Input text here
         messageField = new JTextField();
+        //Send will send the inputted message from inputPanel
         sendButton = new JButton("Send");
+        //Quit will remove the connection to the server and quit
         quitButton = new JButton("Quit");
 
+        //button and messageField Placements
         inputPanel.add(messageField, BorderLayout.CENTER);
         inputPanel.add(sendButton, BorderLayout.EAST);
         inputPanel.add(quitButton, BorderLayout.WEST);
 
+        //Add border
         frame.add(inputPanel, BorderLayout.SOUTH);
 
+        //ActionListener if user clicks send
         sendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -57,6 +68,7 @@ public class ClientUI {
             }
         });
 
+        //ActionListener if user pressed enter on the text input 
         messageField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -64,6 +76,7 @@ public class ClientUI {
             }
         });
 
+        //ActionListener if user pressed quit button
         quitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -71,11 +84,14 @@ public class ClientUI {
             }
         });
 
+        //Make the window visible
         frame.setVisible(true);
 
+        //Listen to Message
         startListeningForMessages();
     }
 
+    //Mostly the same as Client's implementation
     private void sendMessage() {
         String message = messageField.getText();
         if (!message.trim().isEmpty()) {
@@ -127,14 +143,17 @@ public class ClientUI {
         }).start();
     }
 
+    //If there is an error, show a new window saying an error message
     private void showError(String errorMessage) {
         JOptionPane.showMessageDialog(frame, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
     }
-
+        
     public static void main(String[] args) {
         try {
+            //Create a window to enter username
             String username = JOptionPane.showInputDialog("Enter your username:");
             if (username != null && !username.trim().isEmpty()) {
+                //Establish connection if Username is valid
                 Socket socket = new Socket("localhost", 727);
                 Client client = new Client(socket, username);
                 new ClientUI(client);
@@ -142,6 +161,7 @@ public class ClientUI {
                 System.out.println("Username is required to join the chat.");
             }
         } catch (IOException e) {
+            //Error messages
             JOptionPane.showMessageDialog(null,
                     "Unable to connect to the server. Please ensure the server is running.",
                     "Connection Error",
