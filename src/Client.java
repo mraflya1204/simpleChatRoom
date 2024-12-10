@@ -8,6 +8,7 @@ public class Client {
     private BufferedWriter out;
     private String thisClientUsername;
 
+    //Constructor
     public Client(Socket socket, String thisClientUsername) {
         try {
             this.socket = socket;
@@ -19,14 +20,18 @@ public class Client {
         }
     }
 
+    //Sending message to clients and server
     public void sendMessage() {
+        //First message sent will be to assign username
         try (Scanner inputScanner = new Scanner(System.in)) {
             out.write(thisClientUsername);
             out.newLine();
             out.flush();
 
+            //Read user's input
             while (socket.isConnected()) {
                 String message = inputScanner.nextLine();
+                //If user typed /quit, connection is closed
                 if (message.equals("/quit")) {
                     out.write("has left the chat.");
                     out.newLine();
@@ -35,6 +40,7 @@ public class Client {
                     closeEverything(socket, in, out);
                     break;
                 }
+                //Write the message
                 out.write(message);
                 out.newLine();
                 out.flush();
@@ -44,7 +50,7 @@ public class Client {
         }
     }
 
-
+    //Read user-inputted message (which will be sent)
     public void readMessage() {
         new Thread(() -> {
             String readMessage;
@@ -52,6 +58,7 @@ public class Client {
             while (socket.isConnected()) {
                 try {
                     readMessage = in.readLine();
+                    //Message will be printed
                     System.out.println(readMessage);
                 } catch (IOException e) {
                     closeEverything(socket, in, out);
@@ -61,6 +68,7 @@ public class Client {
         }).start();
     }
 
+    //Close the client's connection
     public void closeEverything(Socket socket, BufferedReader in, BufferedWriter out) {
         try {
             if (in != null) {
@@ -77,6 +85,8 @@ public class Client {
         }
     }
 
+
+    //Getters
     public BufferedWriter getOut() {
         return out;
     }
