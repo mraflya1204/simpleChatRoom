@@ -19,7 +19,6 @@ public class ClientHandler implements Runnable {
             this.thisClientUsername = in.readLine();
             clientHandlers.add(this);
 
-            // Send previous messages
             ResultSet resultSet = DatabaseHandler.getPreviousMessages();
             while (resultSet != null && resultSet.next()) {
                 String username = resultSet.getString("username");
