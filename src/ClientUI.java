@@ -18,7 +18,6 @@ public class ClientUI {
     public ClientUI(Client client) {
         this.client = client;
 
-        // Send the username to the server
         try {
             client.getOut().write(client.getThisClientUsername());
             client.getOut().newLine();
@@ -28,19 +27,16 @@ public class ClientUI {
             e.printStackTrace();
         }
 
-        // Set up the main frame
         frame = new JFrame("Chat Room");
         frame.setSize(600, 400);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
-        // Chat display area
         chatArea = new JTextArea();
         chatArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(chatArea);
         frame.add(scrollPane, BorderLayout.CENTER);
 
-        // Input panel
         JPanel inputPanel = new JPanel();
         inputPanel.setLayout(new BorderLayout());
 
@@ -54,7 +50,6 @@ public class ClientUI {
 
         frame.add(inputPanel, BorderLayout.SOUTH);
 
-        // Event listeners
         sendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -76,10 +71,8 @@ public class ClientUI {
             }
         });
 
-        // Display the frame
         frame.setVisible(true);
 
-        // Start listening for incoming messages
         startListeningForMessages();
     }
 
@@ -87,15 +80,12 @@ public class ClientUI {
         String message = messageField.getText();
         if (!message.trim().isEmpty()) {
             try {
-                // Send the message to the server
                 client.getOut().write(message);
                 client.getOut().newLine();
                 client.getOut().flush();
 
-                // Display the sent message in the chat area with the username
                 chatArea.append(client.getThisClientUsername() + ": " + message + "\n");
 
-                // Clear the input field
                 messageField.setText("");
             } catch (IOException e) {
                 showError("Error sending message.");
@@ -106,18 +96,14 @@ public class ClientUI {
 
     private void quitChat() {
         try {
-            // Signal the listening thread to stop
             isRunning = false;
 
-            // Notify the server about quitting
             client.getOut().write("has left the chat.");
             client.getOut().newLine();
             client.getOut().flush();
 
-            // Close resources
             client.closeEverything(client.getSocket(), client.getIn(), client.getOut());
 
-            // Close the UI
             frame.dispose();
         } catch (IOException e) {
             showError("Error while quitting the chat.");
@@ -149,7 +135,6 @@ public class ClientUI {
         try {
             String username = JOptionPane.showInputDialog("Enter your username:");
             if (username != null && !username.trim().isEmpty()) {
-                // Attempt to connect to the server
                 Socket socket = new Socket("localhost", 727);
                 Client client = new Client(socket, username);
                 new ClientUI(client);
@@ -157,7 +142,6 @@ public class ClientUI {
                 System.out.println("Username is required to join the chat.");
             }
         } catch (IOException e) {
-            // Display error window if server is not available
             JOptionPane.showMessageDialog(null,
                     "Unable to connect to the server. Please ensure the server is running.",
                     "Connection Error",
