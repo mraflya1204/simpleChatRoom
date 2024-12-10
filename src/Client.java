@@ -92,17 +92,4 @@ public class Client {
     public String getThisClientUsername() {
         return thisClientUsername;
     }
-
-    public static void main(String[] args) {
-        try (Scanner myScanner = new Scanner(System.in)) {
-            System.out.print("Enter username: ");
-            String myUserName = myScanner.nextLine();
-            Socket mySocket = new Socket("localhost", 727);
-            Client myClient = new Client(mySocket, myUserName);
-            myClient.readMessage();
-            myClient.sendMessage();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }
